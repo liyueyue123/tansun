@@ -1,0 +1,175 @@
+<template>
+
+  <div>
+    <div class="queryDiv">
+      <div>
+
+        <el-form ref="form" label-width="80px" label-suffix=":" :inline="true">
+          <el-form-item label="卡号" label-width="60px">
+            <el-input v-model="queryParams.cardId"></el-input>
+          </el-form-item>
+          <el-form-item label="证件号" label-width="60px">
+            <el-input v-model="queryParams.id"></el-input>
+          </el-form-item>
+          <el-form-item label="账号" label-width="60px">
+            <el-input v-model="queryParams.account"></el-input>
+          </el-form-item>
+          <el-form-item label="起始日期">
+            <el-date-picker
+              v-model="queryParams.startDate"
+              type="date"
+              placeholder="选择日期">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="结束日期">
+            <el-date-picker
+              v-model="queryParams.endDate"
+              type="date"
+              placeholder="选择日期">
+            </el-date-picker>
+          </el-form-item>
+
+          <el-form-item>
+            <el-button @click="loadData">查询</el-button>
+            <el-button>重置</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <div style="width: 60px;display: flex;align-items: flex-end;padding-bottom: 5px">
+        <el-button>导出</el-button>
+      </div>
+    </div>
+    <el-table
+      ref="table"
+      v-loading="loading"
+      :data="tableData"
+      element-loading-text="Loading..."
+      border
+      fit
+      highlight-current-row
+    >
+      <el-table-column
+        align="center"
+        label="序号"
+        width="95"
+      >
+        <template slot-scope="{$index}">
+          {{ pagination.pageSize * (pagination.currentPage - 1) + $index + 1 }}
+        </template>
+      </el-table-column>
+
+
+      <el-table-column
+        v-for="(title,index) in titles"
+        :key="index"
+        :prop="title"
+        :label="title"
+      >
+      </el-table-column>
+
+      <el-table-column
+        align="center"
+        label="操作"
+        width="95"
+      >
+        <template slot-scope="{$index}">
+          <el-button>查看</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <pagination
+      v-show="pagination.total>pagination.pageSize"
+      :total="pagination.total"
+      :page.sync="pagination.currentPage"
+      :limit.sync="pagination.pageSize"
+      @pagination="loadData"
+    />
+
+  </div>
+</template>
+
+<script>
+
+import Pagination from '@/components/Pagination/index.vue'
+import BasePage from "@/views/comp/basePage";
+import {queryCaseUserInfoMgrHistory} from "@/api/cases";
+import { mapState } from 'vuex'
+
+export default {
+  components: {
+    Pagination
+  },
+  data() {
+    return {
+      pagination: {
+        currentPage: 1, pageSize: 5, total: 0
+      },
+
+      titles: [],
+
+      queryParams: {
+        cardId: '',
+        id: '',
+        account: '',
+        startDate: null,
+        endDate: null
+      }
+    }
+  },
+
+  mixins: [BasePage],
+
+  computed: {
+
+    ...mapState('cases', ['caseId']),
+  },
+
+  mounted() {
+    this.loadData()
+  },
+  methods: {
+
+    async loadData() {
+      this.loading = true;
+      const _this = this;
+      const condition = {};
+      // @ts-ignore
+      condition.page = this.pagination.currentPage
+      // @ts-ignore
+      condition.limit = this.pagination.pageSize
+      // @ts-ignore
+      const {data: {items, total}} = await queryCaseUserInfoMgrHistory(condition)
+      _this.tableData = items;
+      _this.pagination.total = total;
+      if (items.length > 0) {
+        this.titles = Object.keys(items[0])
+      }
+      // @ts-ignore
+      if (_this.handleData != null) {
+        // @ts-ignore
+        _this.handleData()
+      }
+      _this.loading = false
+    }
+  }
+
+
+}
+</script>
+
+<style lang="scss" scoped>
+.queryDiv {
+  display: flex;
+  justify-content: space-between;
+
+
+  .el-form-item {
+    margin-bottom: 5px;
+  }
+
+  .el-input {
+    width: 130px !important;
+  }
+}
+</style>
