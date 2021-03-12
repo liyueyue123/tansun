@@ -6,11 +6,21 @@ const state = {
 const mutations = {
   ADD_VISITED_VIEW: (state, view) => {
     if (state.visitedViews.some(v => v.path === view.path)) return
-    state.visitedViews.push(
-      Object.assign({}, view, {
-        title: view.meta.title || 'no-name'
-      })
-    )
+    if(view&&view.name=='caseuser'){
+
+      state.visitedViews.push(
+          Object.assign({}, view, {
+            title: view.query.custName==null?(view.meta.title || 'no-name'):('客户信息'+view.query.custName)
+          })
+      )
+    }else{
+
+      state.visitedViews.push(
+          Object.assign({}, view, {
+            title: view.meta.title || 'no-name'
+          })
+      )
+    }
   },
   ADD_CACHED_VIEW: (state, view) => {
     if (state.cachedViews.includes(view.name)) return

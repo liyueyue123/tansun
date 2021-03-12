@@ -1,22 +1,18 @@
-import {queryCaseInfo, queryCaseUserInfo} from "@/api/cases";
+import {queryCaseCardList, queryCaseInfo, queryCaseUserInfo} from "@/api/cases";
 
 
 const state = {
-  caseId: '',
+  caseCode: '',
 
-  caseUserInfo: {},
   caseInfo: {}
 
 }
 
 const mutations = {
-  set_caseId: (state, caseId) => {
-    state.caseId = caseId;
+  set_caseId: (state, caseCode) => {
+    state.caseCode = caseCode;
   },
 
-  set_caseUserInfo: (state, caseUserInfo) => {
-    state.caseUserInfo = caseUserInfo;
-  },
 
   set_caseInfo: (state, data) => {
     state.caseInfo = data;
@@ -25,16 +21,12 @@ const mutations = {
 }
 
 const actions = {
-  changeCaseId({commit}, caseId) {
+  changeCaseId({commit}, caseCode) {
 
-    commit('set_caseId', caseId)
-
-    queryCaseUserInfo(caseId).then(res => {
-      commit('set_caseUserInfo', res.data)
-    })
+    commit('set_caseId', caseCode)
 
 
-    queryCaseInfo(caseId).then(res => {
+    queryCaseInfo(caseCode).then(res => {
       commit('set_caseInfo', res.data)
     })
 
